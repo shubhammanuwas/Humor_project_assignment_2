@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import SignOutButton from '../protected/sign-out-button'
+import SubmitButton from './submit-button'
 import { getSuperadminActionContext, requireSuperadminPage } from '@/lib/admin/auth'
 
 type GenericRow = Record<string, unknown>
@@ -159,6 +160,7 @@ async function createImage(formData: FormData) {
       revalidatePath('/admin')
       redirectWithStatus('success', 'Image created successfully.')
     }
+    console.error('Create image failed for payload:', payload, error.message)
     lastError = error.message
   }
 
@@ -200,6 +202,7 @@ async function updateImage(formData: FormData) {
         redirectWithStatus('success', 'Image updated successfully.')
       }
 
+      console.error('Update image failed for id/payload:', idColumn, imageId, payload, error.message)
       lastError = error.message
     }
   }
@@ -234,6 +237,7 @@ async function deleteImage(formData: FormData) {
       redirectWithStatus('success', 'Image deleted successfully.')
     }
 
+    console.error('Delete image failed for id:', idColumn, imageId, error.message)
     lastError = error.message
   }
 
@@ -267,14 +271,14 @@ function DataTable({
   const columns = collectColumns(rows, preferredColumns)
 
   return (
-    <section className="panel stack-sm">
+    <section className="panel stack-sm admin-section">
       <h2 className="section-title">{title}</h2>
       {errorMessage ? <p className="status-error">{errorMessage}</p> : null}
       {rows.length === 0 ? (
         <p>No rows returned.</p>
       ) : (
         <div className="table-wrap">
-          <table className="data-table">
+          <table className="data-table admin-data-table">
             <thead>
               <tr>
                 {columns.map((column) => (
@@ -328,8 +332,8 @@ export default async function AdminPage({
 
   return (
     <main className="page-shell">
-      <div className="page-grid">
-        <section className="panel stack-sm">
+      <div className="page-grid admin-page-grid">
+        <section className="panel stack-sm admin-hero">
           <h1 className="title">Admin Panel</h1>
           <p className="subtitle">
             Signed in as <span className="mono">{admin.userEmail ?? admin.userId}</span>
@@ -343,8 +347,10 @@ export default async function AdminPage({
               Back to Rating App
             </Link>
           </div>
-          {successMessage ? <p className="status-success">{successMessage}</p> : null}
-          {errorMessage ? <p className="status-error">{errorMessage}</p> : null}
+          <div className="status-stack">
+            {successMessage ? <p className="status-success status-pill">{successMessage}</p> : null}
+            {errorMessage ? <p className="status-error status-pill">{errorMessage}</p> : null}
+          </div>
         </section>
 
         <section className="panel">
@@ -377,7 +383,7 @@ export default async function AdminPage({
           <h2 className="section-title">Manage Images (CRUD)</h2>
           <div className="admin-form-grid">
             <form action={createImage} className="card stack-sm">
-              <h3>Create image</h3>
+              <h3 className="form-title">Create image</h3>
               <label className="stack-sm">
                 <span>Image URL</span>
                 <input name="image_url" className="input" required placeholder="https://..." />
@@ -390,13 +396,15 @@ export default async function AdminPage({
                 <span>caption_id (optional)</span>
                 <input name="caption_id" className="input" placeholder="uuid" />
               </label>
-              <button className="btn btn-primary" type="submit">
-                Create
-              </button>
+              <SubmitButton
+                className="btn btn-primary"
+                idleLabel="Create"
+                pendingLabel="Creating..."
+              />
             </form>
 
             <form action={updateImage} className="card stack-sm">
-              <h3>Update image</h3>
+              <h3 className="form-title">Update image</h3>
               <label className="stack-sm">
                 <span>Image id</span>
                 <input name="image_id" className="input" required />
@@ -405,20 +413,24 @@ export default async function AdminPage({
                 <span>New image URL</span>
                 <input name="image_url" className="input" required placeholder="https://..." />
               </label>
-              <button className="btn btn-primary" type="submit">
-                Update
-              </button>
+              <SubmitButton
+                className="btn btn-primary"
+                idleLabel="Update"
+                pendingLabel="Updating..."
+              />
             </form>
 
             <form action={deleteImage} className="card stack-sm">
-              <h3>Delete image</h3>
+              <h3 className="form-title">Delete image</h3>
               <label className="stack-sm">
                 <span>Image id</span>
                 <input name="image_id" className="input" required />
               </label>
-              <button className="btn btn-warn" type="submit">
-                Delete
-              </button>
+              <SubmitButton
+                className="btn btn-warn"
+                idleLabel="Delete"
+                pendingLabel="Deleting..."
+              />
             </form>
           </div>
         </section>

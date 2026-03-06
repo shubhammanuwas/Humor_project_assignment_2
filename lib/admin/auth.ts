@@ -3,9 +3,9 @@ import { redirect } from 'next/navigation'
 
 type ProfileRow = {
   id?: string | null
-  user_id?: string | null
-  auth_user_id?: string | null
+  email?: string | null
   is_superadmin?: boolean | null
+  [key: string]: unknown
 }
 
 type AdminContext = {
@@ -18,12 +18,12 @@ type AdminContext = {
 
 async function getProfileByField(
   supabase: ReturnType<typeof createSupabaseServerClient>,
-  field: 'user_id' | 'auth_user_id' | 'id',
+  field: 'id' | 'email',
   value: string
 ): Promise<ProfileRow | null> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, user_id, auth_user_id, is_superadmin')
+    .select('*')
     .eq(field, value)
     .limit(1)
     .maybeSingle()
@@ -45,12 +45,9 @@ async function loadAdminContext(): Promise<AdminContext | null> {
     return null
   }
 
-  let profile = await getProfileByField(supabase, 'user_id', user.id)
-  if (!profile) {
-    profile = await getProfileByField(supabase, 'auth_user_id', user.id)
-  }
-  if (!profile) {
-    profile = await getProfileByField(supabase, 'id', user.id)
+  let profile = await getProfileByField(supabase, 'id', user.id)
+  if (!profile && user.email) {
+    profile = await getProfileByField(supabase, 'email', user.email)
   }
 
   return {
