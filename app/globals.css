@@ -1,0 +1,238 @@
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+:root {
+  --bg-top: #f6fbff;
+  --bg-bottom: #e9f7ef;
+  --ink: #18212e;
+  --ink-soft: #4a5668;
+  --panel: rgba(255, 255, 255, 0.88);
+  --panel-border: rgba(24, 33, 46, 0.12);
+  --line: rgba(24, 33, 46, 0.14);
+  --brand: #0f6bdb;
+  --brand-strong: #0955b2;
+  --warn: #a42e24;
+  --ok: #0f7a44;
+  --shadow: 0 20px 50px rgba(18, 46, 91, 0.12);
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Avenir Next', 'Segoe UI Variable', 'Trebuchet MS', 'Gill Sans',
+    sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 15% 20%, #fef3da 0, transparent 26%),
+    radial-gradient(circle at 80% 8%, #d8f4ff 0, transparent 24%),
+    linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.page-shell {
+  min-height: 100vh;
+  padding: 2.25rem 1rem;
+}
+
+.page-grid {
+  width: min(980px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 1rem;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 1.2rem;
+  backdrop-filter: blur(4px);
+}
+
+.title {
+  font-size: clamp(1.55rem, 3.2vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.subtitle {
+  margin-top: 0.45rem;
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.section-title {
+  font-size: 1.22rem;
+  margin-bottom: 0.85rem;
+}
+
+.action-row {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.btn {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 0.96rem;
+  font-weight: 600;
+  padding: 0.6rem 0.95rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(15, 70, 141, 0.12);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, #1f87ff, var(--brand));
+  border-color: var(--brand-strong);
+  color: #fff;
+}
+
+.btn-warn {
+  color: #fff;
+  border-color: #842015;
+  background: linear-gradient(180deg, #ce4a3f, #a42e24);
+}
+
+.btn-ghost {
+  background: #f7fbff;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 560px;
+}
+
+.data-table th {
+  text-align: left;
+  color: var(--ink-soft);
+  font-weight: 700;
+  border-bottom: 1px solid var(--line);
+  padding: 0.55rem 0.15rem;
+}
+
+.data-table td {
+  border-bottom: 1px solid rgba(24, 33, 46, 0.08);
+  padding: 0.65rem 0.15rem;
+}
+
+.list-reset {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  padding: 0.9rem;
+}
+
+.stack-sm > * + * {
+  margin-top: 0.55rem;
+}
+
+.status-error {
+  color: var(--warn);
+  font-size: 0.92rem;
+}
+
+.status-success {
+  color: var(--ok);
+  font-size: 0.92rem;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.87rem;
+  word-break: break-all;
+}
+
+.file-input {
+  width: 100%;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  padding: 0.8rem;
+  background: #fff;
+}
+
+.stat-grid {
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.stat-card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  padding: 0.8rem;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-top: 0.2rem;
+}
+
+.admin-form-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  padding: 0.55rem 0.7rem;
+  font: inherit;
+  color: var(--ink);
+}
+
+@media (min-width: 768px) {
+  .page-shell {
+    padding: 3rem 1.5rem;
+  }
+
+  .panel {
+    padding: 1.4rem;
+  }
+}
