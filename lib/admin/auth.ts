@@ -13,20 +13,26 @@ type AdminContext = {
   userId: string
   userEmail: string | null
   profile: ProfileRow | null
+  profileId: string | null
   isSuperadmin: boolean
 }
 
 async function getProfileByField(
   supabase: ReturnType<typeof createSupabaseServerClient>,
   field: 'id' | 'email',
-  value: string
+  value: string,
+  requireSuperadmin = false
 ): Promise<ProfileRow | null> {
-  const { data, error } = await supabase
+  let query = supabase
     .from('profiles')
     .select('*')
     .eq(field, value)
     .limit(1)
-    .maybeSingle()
+  if (requireSuperadmin) {
+    query = query.eq('is_superadmin', true)
+  }
+
+  const { data, error } = await query.maybeSingle()
 
   if (error || !data) {
     return null
@@ -45,7 +51,13 @@ async function loadAdminContext(): Promise<AdminContext | null> {
     return null
   }
 
-  let profile = await getProfileByField(supabase, 'id', user.id)
+  let profile = await getProfileByField(supabase, 'id', user.id, true)
+  if (!profile && user.email) {
+    profile = await getProfileByField(supabase, 'email', user.email, true)
+  }
+  if (!profile) {
+    profile = await getProfileByField(supabase, 'id', user.id)
+  }
   if (!profile && user.email) {
     profile = await getProfileByField(supabase, 'email', user.email)
   }
@@ -55,6 +67,7 @@ async function loadAdminContext(): Promise<AdminContext | null> {
     userId: user.id,
     userEmail: user.email ?? null,
     profile,
+    profileId: typeof profile?.id === 'string' ? profile.id : null,
     isSuperadmin: Boolean(profile?.is_superadmin),
   }
 }
@@ -84,6 +97,10 @@ export async function getSuperadminActionContext(): Promise<
 
   if (!context.isSuperadmin) {
     return { error: 'Only superadmins can use admin actions.' }
+  }
+
+  if (!context.profileId) {
+    return { error: 'Missing profiles.id for signed-in admin user.' }
   }
 
   return { context }
