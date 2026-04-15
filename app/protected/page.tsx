@@ -39,31 +39,34 @@ function getCaptionText(row: CaptionRow): string {
 
 async function resolveProfileId(
   supabase: SupabaseClient,
-  authUserId: string
-): Promise<string> {
-  const byUserId = await supabase
+  authUserId: string,
+  userEmail: string | null
+): Promise<string | null> {
+  const byId = await supabase
     .from('profiles')
     .select('id')
-    .eq('user_id', authUserId)
+    .eq('id', authUserId)
     .limit(1)
     .maybeSingle()
 
-  if (!byUserId.error && byUserId.data?.id) {
-    return String(byUserId.data.id)
+  if (!byId.error && byId.data?.id) {
+    return String(byId.data.id)
   }
 
-  const byAuthUserId = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('auth_user_id', authUserId)
-    .limit(1)
-    .maybeSingle()
+  if (userEmail) {
+    const byEmail = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', userEmail)
+      .limit(1)
+      .maybeSingle()
 
-  if (!byAuthUserId.error && byAuthUserId.data?.id) {
-    return String(byAuthUserId.data.id)
+    if (!byEmail.error && byEmail.data?.id) {
+      return String(byEmail.data.id)
+    }
   }
 
-  return authUserId
+  return null
 }
 
 async function insertVote(
@@ -78,6 +81,8 @@ async function insertVote(
       caption_id: captionId,
       profile_id: profileId,
       vote_value: direction === 'up' ? 1 : -1,
+      created_by_user_id: profileId,
+      modified_by_user_id: profileId,
       created_datetime_utc: now,
       modified_datetime_utc: now,
     },
@@ -85,11 +90,15 @@ async function insertVote(
       caption_id: captionId,
       profile_id: profileId,
       vote_value: direction === 'up' ? 1 : -1,
+      created_by_user_id: profileId,
+      modified_by_user_id: profileId,
     },
     {
       caption_id: captionId,
       profile_id: profileId,
       vote_value: direction === 'up' ? 'up' : 'down',
+      created_by_user_id: profileId,
+      modified_by_user_id: profileId,
       created_datetime_utc: now,
       modified_datetime_utc: now,
     },
@@ -97,6 +106,8 @@ async function insertVote(
       caption_id: captionId,
       profile_id: profileId,
       vote_value: direction === 'up' ? 'up' : 'down',
+      created_by_user_id: profileId,
+      modified_by_user_id: profileId,
     },
   ]
 
@@ -111,6 +122,8 @@ async function insertVote(
     caption_id: captionId,
     profile_id: profileId,
     vote_value: direction === 'up' ? 1 : -1,
+    created_by_user_id: profileId,
+    modified_by_user_id: profileId,
     created_datetime_utc: now,
     modified_datetime_utc: now,
   })
@@ -140,7 +153,11 @@ async function voteCaption(formData: FormData) {
     return
   }
 
-  const profileId = await resolveProfileId(supabase, user.id)
+  const profileId = await resolveProfileId(supabase, user.id, user.email ?? null)
+  if (!profileId) {
+    console.error('Vote insert error: missing matching profiles.id for signed-in user.')
+    return
+  }
   const result = await insertVote(supabase, captionId, profileId, direction)
   if (!result.success) {
     console.error('Vote insert error:', result.errorMessage)
